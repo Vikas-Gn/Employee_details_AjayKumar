@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: Frontend
+    build: ./Frontend
+    ports:
+      - "8068:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    container_name: Backend-employee
+    build: ./Backend
+    ports:
+      - "3051:3051"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: auth_db
+      EMPLOYEE_PORT: 3051
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres-employee
+    image: postgres:16
+    ports:
+      - "5019:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
+
